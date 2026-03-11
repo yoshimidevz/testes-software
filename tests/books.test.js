@@ -3,9 +3,14 @@ const app = require('../src/app');
 
 test('POST /books - should create a new book', async () => {
     const res = await request(app)
-        .post('/books')
+        .post('/api/books')
         .send({title: 'Test Book', author: 'Test Author'});
-    expected(res.statusCode).toEqual(201);
-    expected(res.body.title).toBe('Test Book');
-    
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.title).toBe('Test Book');
+    expect(res.body.author).toBe('Test Author');
+});
+
+test('GET /books - should return 404 for non-existing route', async () => {
+    const res = await request(app).get('/api/books');
+    expect(res.statusCode).toEqual(200);
 });

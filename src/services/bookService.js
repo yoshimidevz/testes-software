@@ -1,9 +1,9 @@
-const livros = [];
+const books = [];
 
-const criarLivro = (titulo, autor) => {
-    const livro = { id: livros.length + 1, titulo, autor};
-    livros.push(livro)
-    return livro;
+const createBook = (title, author) => {
+    const book = { id: books.length + 1, title, author};
+    books.push(book)
+    return book;
 }
 
-module.exports = { criarLivro };
+module.exports = { createBook };
