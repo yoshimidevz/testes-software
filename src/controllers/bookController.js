@@ -14,4 +14,33 @@ const get = (req, res) => {
     res.status(200).json({message: 'Get all books - not implemented yet'});
 }
 
-module.exports = { create, get };
+const getById = async (req, res) => {
+    try {
+        const {id} = req.params;
+        res.status(200).json({message: `Get book with id ${id}`});
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+}
+
+const update = async (req, res)=> {
+    try{
+        const {id} = req.params;
+        res.status(200).json({message: `U book with id ${id}`});
+    } catch (error){
+        res.status(500).json({error: error.message});
+    }
+}
+
+const deletar = async (req, res) => {
+    const {id} = req.params;
+
+    if(!id){
+        return res.status(400).json({erro: 'id é obrigatório'});
+    }
+
+    await deleteBook(id);
+    res.status(204).send();
+}
+
+module.exports = { create, get, getById };

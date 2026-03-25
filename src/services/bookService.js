@@ -6,4 +6,10 @@ const createBook = (title, author) => {
     return book;
 }
 
-module.exports = { createBook };
+const getBookById = async (id) => {
+    return await Book.findByPk(id);
+}
+
+
+
+module.exports = { createBook, getBookById };
