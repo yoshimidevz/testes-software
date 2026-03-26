@@ -1,17 +1,18 @@
-const {createBook} = require('../services/bookService');
+const {createBook, getAllBooks, deleteBook} = require('../services/bookService');
 
-const create = (req, res) => {
+const create = async (req, res) => {
     const {title, author} = req.body;
 
     if (!title || !author) {
         return res.status(400).json({error: 'Title and author are required'});
     }
-    const newBook = createBook(title, author);
+    const newBook = await createBook(title, author);
     res.status(201).json(newBook);
 }
 
-const get = (req, res) => {
-    res.status(200).json({message: 'Get all books - not implemented yet'});
+const get = async (req, res) => {
+    const books = await getAllBooks();
+    return res.status(200).json(books);
 }
 
 const getById = async (req, res) => {
@@ -23,10 +24,10 @@ const getById = async (req, res) => {
     }
 }
 
-const update = async (req, res)=> {
+const atualizar = async (req, res)=> {
     try{
         const {id} = req.params;
-        res.status(200).json({message: `U book with id ${id}`});
+        res.status(200).json({message: `Update book with id ${id}`});
     } catch (error){
         res.status(500).json({error: error.message});
     }
@@ -35,12 +36,15 @@ const update = async (req, res)=> {
 const deletar = async (req, res) => {
     const {id} = req.params;
 
-    if(!id){
-        return res.status(400).json({erro: 'id é obrigatório'});
+    try {
+        await deleteBook(id);
+        res.status(200).json({message: 'Book deleted successfully'});
+    } catch (error) {
+        if (error.message === 'Book not found') {
+            return res.status(404).json({error: 'Book not found'});
+        }
+        res.status(500).json({error: error.message});
     }
-
-    await deleteBook(id);
-    res.status(204).send();
 }
 
-module.exports = { create, get, getById };
+module.exports = { create, get, getById, atualizar, deletar };

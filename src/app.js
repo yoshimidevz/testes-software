@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const apiRouter = require('./routes/Routes');
+const apiRoutes = require('./routes/Routes');
 
 const corsOrigin = process.env.CORS_ORIGIN;
 app.use(
