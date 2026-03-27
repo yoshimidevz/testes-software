@@ -6,8 +6,16 @@ const create = async (req, res) => {
     if (!nome || !email || !senha || !tipo) {
         return res.status(400).json({error: 'All fields are required'});
     }
-    const newUser = await createUser(nome, email, senha, tipo);
-    res.status(201).json(newUser);
+
+    try {
+        const newUser = await createUser(nome, email, senha, tipo);
+        res.status(201).json(newUser);
+    } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({error: 'Email already in use'});
+        }
+        res.status(500).json({error: error.message});
+    }
 }
 
 const getAllUsers = async (req, res) => {
@@ -18,17 +26,25 @@ const getAllUsers = async (req, res) => {
 const getById = async (req, res) => {
     try {
         const {id} = req.params;
-        res.status(200).json({message: `Get user with id ${id}`});
+        const user = await getUserById(id);
+        if (!user) {
+            return res.status(404).json({error: 'User not found'});
+        }
+        res.status(200).json(user);
     } catch (error) {
         res.status(500).json({error: error.message});
     }
 }
 
-const atualizar = async (req, res)=> {
-    try{
+const atualizar = async (req, res) => {
+    try {
         const {id} = req.params;
-        res.status(200).json({message: `Update user with id ${id}`});
-    } catch (error){
+        const user = await updateUser(id, req.body);
+        res.status(200).json(user);
+    } catch (error) {
+        if (error.message === 'User not found') {
+            return res.status(404).json({error: 'User not found'});
+        }
         res.status(500).json({error: error.message});
     }
 }

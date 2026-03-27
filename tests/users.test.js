@@ -3,13 +3,37 @@ require('dotenv').config();
 const api = `http://localhost:${process.env.PORT || 3000}`;
 
 describe("users", () => {
+  test("POST /users - deve criar um novo usuário", async () => {
+    const res = await axios.post(`${api}/users`, {
+      nome: "João Silva",
+      email: `joao_${Date.now()}@email.com`,
+      senha: "123456",
+      tipo: "aluno",
+    });
+    expect(res.status).toBe(201);
+    expect(res.data).toHaveProperty("id");
+    expect(res.data.nome).toBe("João Silva");
+    expect(res.data.tipo).toBe("aluno");
+  });
+
+  test("POST /users - deve retornar 400 ao criar usuário com email já cadastrado", async () => {
+    const email = `duplicado_${Date.now()}@email.com`;
+    await axios.post(`${api}/users`, { nome: "Maria Souza", email, senha: "123456", tipo: "aluno" });
+
+    try {
+      await axios.post(`${api}/users`, { nome: "Carlos Lima", email, senha: "abcdef", tipo: "aluno" });
+    } catch (err) {
+      expect(err.response.status).toBe(400);
+    }
+  });
+  
   test("GET /users - deve retornar uma lista de usuários", async () => {
     const res = await axios.get(`${api}/users`);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.data)).toBe(true);
   });
 
-  /*test("GET /users/:id - deve retornar um usuário pelo id", async () => {
+  test("GET /users/:id - deve retornar um usuário pelo id", async () => {
     const res = await axios.get(`${api}/users/1`);
     expect(res.status).toBe(200);
     expect(res.data).toHaveProperty("id");
@@ -23,19 +47,6 @@ describe("users", () => {
     } catch (err) {
       expect(err.response.status).toBe(404);
     }
-  });
-
-  test("POST /users - deve criar um novo usuário", async () => {
-    const res = await axios.post(`${api}/users`, {
-      nome: "João Silva",
-      email: `joao_${Date.now()}@email.com`,
-      senha: "123456",
-      tipo: "aluno",
-    });
-    expect(res.status).toBe(201);
-    expect(res.data).toHaveProperty("id");
-    expect(res.data.nome).toBe("João Silva");
-    expect(res.data.tipo).toBe("aluno");
   });
 0
   test("POST /users - deve retornar 400 ao criar usuário sem nome", async () => {
@@ -57,17 +68,6 @@ describe("users", () => {
         senha: "123456",
         tipo: "aluno",
       });
-    } catch (err) {
-      expect(err.response.status).toBe(400);
-    }
-  });
-
-  test("POST /users - deve retornar 400 ao criar usuário com email já cadastrado", async () => {
-    const email = `duplicado_${Date.now()}@email.com`;
-    await axios.post(`${api}/users`, { nome: "Maria Souza", email, senha: "123456", tipo: "aluno" });
-
-    try {
-      await axios.post(`${api}/users`, { nome: "Carlos Lima", email, senha: "abcdef", tipo: "aluno" });
     } catch (err) {
       expect(err.response.status).toBe(400);
     }
@@ -112,5 +112,5 @@ describe("users", () => {
     } catch (err) {
       expect(err.response.status).toBe(404);
     }
-  });*/
+  });
 });

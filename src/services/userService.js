@@ -26,15 +26,12 @@ const deleteUser = async (id) => {
     await user.destroy();
 }
 
-const updateUser = async (id, nome, email, senha, tipo) => {
+const updateUser = async (id, dados) => {
     const user = await getUserById(id);
     if (!user) {
         throw new Error('User not found');
     }
-    user.nome = nome;
-    user.email = email;
-    user.senha = senha;
-    user.tipo = tipo;
+    Object.assign(user, dados);
     await user.save();
     return user;
 }
