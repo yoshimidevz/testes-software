@@ -1,4 +1,5 @@
 const { createUser, getAllUsers: fetchAllUsers, getUserById, deleteUser, updateUser } = require('../services/userService');
+const bcrypt = require('bcrypt');
 
 const create = async (req, res) => {
     const {nome, email, senha, tipo} = req.body;
@@ -7,8 +8,10 @@ const create = async (req, res) => {
         return res.status(400).json({error: 'All fields are required'});
     }
 
+    const senhaHash = await bcrypt.hash(senha, 10);
+
     try {
-        const newUser = await createUser(nome, email, senha, tipo);
+        const newUser = await createUser(nome, email, senhaHash, tipo);
         res.status(201).json(newUser);
     } catch (error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
