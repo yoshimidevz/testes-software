@@ -1,50 +1,46 @@
-const {createBook, getAllBooks, deleteBook} = require('../services/bookService');
+const axios = require('axios');
+require('dotenv').config();
+const api = `http://localhost:${process.env.PORT || 3000}`;
 
-const create = async (req, res) => {
-    const {title, author} = req.body;
+describe('Book API', () => {
+    test('GET /books - should get a book', async () => {
+        const res = await axios.get(`${api}/books`);
+        expect(res.status).toBe(200);
+    });
+    
+    test('POST /books - should create a new book', async () => {
+        const res = await axios.post(`${api}/books`, {title: 'Test Book', author: 'Test Author'});
+        expect(res.status).toBe(201);
+        expect(res.data.title).toBe('Test Book');
+        expect(res.data.author).toBe('Test Author');
+    });
 
-    if (!title || !author) {
-        return res.status(400).json({error: 'Title and author are required'});
-    }
-    const newBook = await createBook(title, author);
-    res.status(201).json(newBook);
-}
+    test('GET /books/:id - should return 200 for existing book', async () => {
+        const res = await axios.get(`${api}/books/1`);
+        expect(res.status).toBe(200);
 
-const get = async (req, res) => {
-    const books = await getAllBooks();
-    return res.status(200).json(books);
-}
+        await axios.get(`${api}/books`, {title: 'Another Book', author: 'Another Author'});
+    });
 
-const getById = async (req, res) => {
-    try {
-        const {id} = req.params;
-        res.status(200).json({message: `Get book with id ${id}`});
-    } catch (error) {
-        res.status(500).json({error: error.message});
-    }
-}
+    test(`PUT  /books/:id - should update a book`, async() =>{
+        const res = await axios.put(`${api}/books/1`, {title: 'Updated Book', author: 'Updated Author'});
+        expect(res.status).toBe(200);
+    });
 
-const atualizar = async (req, res)=> {
-    try{
-        const {id} = req.params;
-        res.status(200).json({message: `Update book with id ${id}`});
-    } catch (error){
-        res.status(500).json({error: error.message});
-    }
-}
+    test('DELETE /books/:id - should delete a book', async () => {
+        const newBook = await axios.post(`${api}/books`, {
+            title: 'Book to Delete',
+            author: 'Author Test'
+        });
 
-const deletar = async (req, res) => {
-    const {id} = req.params;
+        const bookId = newBook.data.id;
+        const res = await axios.delete(`${api}/books/${bookId}`);
+        expect(res.status).toBe(200);
 
-    try {
-        await deleteBook(id);
-        res.status(200).json({message: 'Book deleted successfully'});
-    } catch (error) {
-        if (error.message === 'Book not found') {
-            return res.status(404).json({error: 'Book not found'});
+        try {
+            await axios.get(`${api}/books/${bookId}`);
+        } catch (err) {
+            expect(err.response.status).toBe(404);
         }
-        res.status(500).json({error: error.message});
-    }
-}
-
-module.exports = { create, get, getById, atualizar, deletar };
+    });
+});
