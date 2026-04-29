@@ -28,11 +28,19 @@ describe('Book API', () => {
     });
 
     test('DELETE /books/:id - should delete a book', async()=>{
-        const res = await axios.delete(`${api}/books/1`);
-        expect(res.status).toBe(200);
+        const createRes = await axios.post(`${api}/books`, {
+            title: 'Livro de Teste',
+            author: 'Autor Teste'
+            
+        });
+        
+        const bookId = createRes.data.id; 
 
-        await axios.delete(`${api}/books/1`).catch(err => {
-            expect(err.response.status).toBe(404);
+        const deleteRes = await axios.delete(`${api}/books/${bookId}`);
+        expect(deleteRes.status).toBe(200);
+
+        await expect(axios.delete(`${api}/books/${bookId}`)).rejects.toMatchObject({
+            response: { status: 404 }
         });
     });
 });
